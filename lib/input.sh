@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source "$(dirname "$0")/cloudimage_manual.sh"
+source "$(dirname "$0")/cloudimage_preset.sh"
+
 collect_input() {
   read -p "Node (default: pve): " NODE
   NODE=${NODE:-pve}
@@ -11,6 +14,18 @@ collect_input() {
   read -p "RAM (GiB): " MEMORY_GIB
   MEMORY=$(( MEMORY_GIB * 1024 ))
   read -p "SSH username (e.g. admin): " CIUSER
+
+  echo "How do you want to select the cloud image?"
+  echo "1) Manual (local path or custom URL)"
+  echo "2) Preset (Debian/Ubuntu)"
+  read -p "Selection [1-2]: " IMAGE_MODE
+  IMAGE_MODE=${IMAGE_MODE:-2}
+
+  if [[ "$IMAGE_MODE" == "1" ]]; then
+    select_cloud_image_manual
+  else
+    select_cloud_image_preset
+  fi
 
   read -p "Bridge (default: vmbr1): " BRIDGE
   BRIDGE=${BRIDGE:-vmbr1}

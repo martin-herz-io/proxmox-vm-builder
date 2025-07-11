@@ -2,7 +2,7 @@
 
 create_vm() {
   STORAGE="local"
-  CLOUD_IMAGE="/var/lib/vz/template/qcow2/debian-12-genericcloud-amd64.qcow2"
+  # CLOUD_IMAGE wird jetzt in input.sh gesetzt
 
   echo "[+] Creating VM $VMID ($VMNAME)..."
   qm create $VMID \
