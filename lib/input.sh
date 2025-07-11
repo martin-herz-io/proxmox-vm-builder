@@ -30,8 +30,7 @@ collect_input() {
   read -p "Bridge (default: vmbr1): " BRIDGE
   BRIDGE=${BRIDGE:-vmbr1}
 
-  if [[ "$BRIDGE" == "vmbr1" ]]; then
-    SUBNET="192.168.100"
+  SUBNET="192.168.100"
     while true; do
       read -p "Last octet for static IP (e.g. 10): " IP_LAST
       VM_IP="$SUBNET.$IP_LAST"
@@ -43,9 +42,6 @@ collect_input() {
         break
       fi
     done
-    VM_GW="$SUBNET.1"
-  else
-    read -p "Static public IP (e.g. 162.55.X.Y): " VM_IP
-    read -p "Gateway (e.g. 162.55.X.1): " VM_GW
-  fi
+    
+  VM_GW="$SUBNET.1"
 }
