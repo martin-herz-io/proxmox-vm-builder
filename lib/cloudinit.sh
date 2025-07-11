@@ -15,7 +15,20 @@ setup_cloudinit() {
     --searchdomain lan \
     --nameserver 8.8.8.8
 
-  USERDATA="#cloud-config\nchpasswd:\n  list: |\n    root:$ROOTPASS\n    $CIUSER:$USERPASS\n  expire: false\nssh_pwauth: true\nusers:\n  - name: $CIUSER\n    sudo: ALL=(ALL) NOPASSWD:ALL\n    shell: /bin/bash\n"
+  USERDATA="#cloud-config
+chpasswd:
+  list: |
+    root:$ROOTPASS
+    $CIUSER:$USERPASS
+  expire: false
+ssh_pwauth: true
+users:
+  - name: $CIUSER
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    passwd: $USERPASS
+    lock_passwd: false
+"
 
   echo "$USERDATA" > /tmp/userdata-$VMID.yaml
   cp /tmp/userdata-$VMID.yaml /var/lib/vz/snippets/userdata-$VMID.yaml
