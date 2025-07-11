@@ -1,15 +1,12 @@
 #!/bin/bash
 
 handle_template_and_start() {
-  read -p "Save as template? [y/N]: " TEMPLATE
-  if [[ "$TEMPLATE" =~ ^[Yy]$ ]]; then
+  if [[ "$TEMPLATE" == "yes" ]]; then
     qm template $VMID
     echo "[✓] VM $VMID saved as template."
   else
     echo "[✓] VM $VMID created."
-    read -p "Start VM now? [Y/n]: " AUTOSTART
-    AUTOSTART=${AUTOSTART:-Y}
-    if [[ "$AUTOSTART" =~ ^[Yy]$ ]]; then
+    if [[ "$AUTOSTART" == "yes" || "$AUTOSTART" =~ ^[Yy]$ ]]; then
       qm start $VMID
       echo "[✓] VM $VMID started."
     else
