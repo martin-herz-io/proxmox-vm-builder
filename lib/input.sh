@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source "$(dirname "$0")/cloudimage_manual.sh"
-source "$(dirname "$0")/cloudimage_preset.sh"
+source "$(dirname "$0")/lib/cloudimage_manual.sh"
+source "$(dirname "$0")/lib/cloudimage_preset.sh"
 
 collect_input() {
   read -p "Node (default: pve): " NODE
