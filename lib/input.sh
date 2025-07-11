@@ -86,7 +86,7 @@ collect_input() {
       if [[ $? -eq 0 ]]; then
         whiptail --msgbox "[!] IP $VM_IP is already in use – please choose another." 8 60
       else
-        whiptail --msgbox "[✓] IP $VM_IP is available." 8 60
+        whiptail --msgbox "[✓] IP $VM_IP is available. Press OK to continue." 8 60
         break
       fi
     done
