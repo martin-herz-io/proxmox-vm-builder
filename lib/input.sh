@@ -4,20 +4,35 @@ source "$(dirname "$0")/lib/cloudimage_manual.sh"
 source "$(dirname "$0")/lib/cloudimage_preset.sh"
 
 collect_input() {
-  # Node
+  # Helper for whiptail cancel
+  abort_if_empty() {
+    if [[ -z "$1" ]]; then
+      echo "[!] Cancelled by user. Exiting."
+      exit 1
+    fi
+  }
+
   if command -v whiptail >/dev/null 2>&1; then
     NODE=$(whiptail --inputbox "Node (default: pve)" 8 60 "pve" 3>&1 1>&2 2>&3)
+    abort_if_empty "$NODE"
     NODE=${NODE:-pve}
     VMID=$(whiptail --inputbox "VM ID (e.g. 9000)" 8 60 "" 3>&1 1>&2 2>&3)
+    abort_if_empty "$VMID"
     VMNAME=$(whiptail --inputbox "VM name" 8 60 "" 3>&1 1>&2 2>&3)
+    abort_if_empty "$VMNAME"
     DISK_SIZE=$(whiptail --inputbox "Disk size (GiB)" 8 60 "" 3>&1 1>&2 2>&3)
+    abort_if_empty "$DISK_SIZE"
     CORES=$(whiptail --inputbox "CPU cores" 8 60 "" 3>&1 1>&2 2>&3)
+    abort_if_empty "$CORES"
     MEMORY_GIB=$(whiptail --inputbox "RAM (GiB)" 8 60 "" 3>&1 1>&2 2>&3)
+    abort_if_empty "$MEMORY_GIB"
     MEMORY=$(( MEMORY_GIB * 1024 ))
     CIUSER=$(whiptail --inputbox "SSH username (e.g. admin)" 8 60 "" 3>&1 1>&2 2>&3)
+    abort_if_empty "$CIUSER"
     IMAGE_MODE=$(whiptail --menu "How do you want to select the cloud image?" 15 60 2 \
       "1" "Manual (local path or custom URL)" \
       "2" "Preset (Debian/Ubuntu)" 3>&1 1>&2 2>&3)
+    abort_if_empty "$IMAGE_MODE"
     IMAGE_MODE=${IMAGE_MODE:-2}
   else
     read -p "Node (default: pve): " NODE
@@ -42,20 +57,30 @@ collect_input() {
     select_cloud_image_preset
   fi
 
-  # Bridge
+  # Bridge Auswahl (nur whiptail)
   if command -v whiptail >/dev/null 2>&1; then
-    BRIDGE=$(whiptail --inputbox "Bridge (default: vmbr1)" 8 60 "vmbr1" 3>&1 1>&2 2>&3)
-    BRIDGE=${BRIDGE:-vmbr1}
+    # Netzwerkkarten abrufen (nur vmbrX, keine lo)
+    BRIDGES=($(awk -F: '/^vmbr/ {print $1}' /proc/net/dev | tr -d ' '))
+    if [[ ${#BRIDGES[@]} -eq 0 ]]; then
+      BRIDGE="vmbr1"
+    else
+      BRIDGE_MENU=()
+      for b in "${BRIDGES[@]}"; do
+        BRIDGE_MENU+=("$b" "Proxmox Bridge $b")
+      done
+      BRIDGE=$(whiptail --menu "Select network bridge" 15 60 ${#BRIDGE_MENU[@]} "${BRIDGE_MENU[@]}" 3>&1 1>&2 2>&3)
+      abort_if_empty "$BRIDGE"
+    fi
   else
     read -p "Bridge (default: vmbr1): " BRIDGE
     BRIDGE=${BRIDGE:-vmbr1}
   fi
 
-  # Static IP
   SUBNET="192.168.100"
   if command -v whiptail >/dev/null 2>&1; then
     while true; do
       IP_LAST=$(whiptail --inputbox "Last octet for static IP (e.g. 10)" 8 60 "" 3>&1 1>&2 2>&3)
+      abort_if_empty "$IP_LAST"
       VM_IP="$SUBNET.$IP_LAST"
       ping -c 1 -W 1 $VM_IP &>/dev/null
       if [[ $? -eq 0 ]]; then
@@ -80,7 +105,6 @@ collect_input() {
   fi
   VM_GW="$SUBNET.1"
 
-  # Template/Start Option
   if command -v whiptail >/dev/null 2>&1; then
     TEMPLATE=$(whiptail --yesno "Save as template?" 8 60 && echo "yes" || echo "no")
     if [[ "$TEMPLATE" == "no" ]]; then
