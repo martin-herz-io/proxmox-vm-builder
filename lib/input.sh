@@ -106,9 +106,18 @@ collect_input() {
   VM_GW="$SUBNET.1"
 
   if command -v whiptail >/dev/null 2>&1; then
-    TEMPLATE=$(whiptail --yesno "Save as template?" 8 60 && echo "yes" || echo "no")
+    if whiptail --yesno "Save as template?" 8 60; then
+      TEMPLATE="yes"
+    else
+      TEMPLATE="no"
+    fi
+    
     if [[ "$TEMPLATE" == "no" ]]; then
-      AUTOSTART=$(whiptail --yesno "Start VM now?" 8 60 && echo "yes" || echo "no")
+      if whiptail --yesno "Start VM now?" 8 60; then
+        AUTOSTART="yes"
+      else
+        AUTOSTART="no"
+      fi
     else
       AUTOSTART="no"
     fi
