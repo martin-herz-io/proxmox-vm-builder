@@ -22,6 +22,11 @@ chpasswd:
     $CIUSER:$USERPASS
   expire: false
 ssh_pwauth: true
+bootcmd:
+  - sysctl -w net.ipv6.conf.all.disable_ipv6=1
+  - sysctl -w net.ipv6.conf.default.disable_ipv6=1
+  - echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf
+  - echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf
 users:
   - name: $CIUSER
     sudo: ALL=(ALL) NOPASSWD:ALL
