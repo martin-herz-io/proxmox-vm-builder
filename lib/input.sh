@@ -62,7 +62,7 @@ collect_input() {
     # Netzwerkkarten abrufen (nur vmbrX, keine lo)
     BRIDGES=($(awk -F: '/^vmbr/ {print $1}' /proc/net/dev | tr -d ' '))
     if [[ ${#BRIDGES[@]} -eq 0 ]]; then
-      BRIDGE="vmbr1"
+      BRIDGE="vmbr0"
     else
       BRIDGE_MENU=()
       for b in "${BRIDGES[@]}"; do
@@ -72,8 +72,8 @@ collect_input() {
       abort_if_empty "$BRIDGE"
     fi
   else
-    read -p "Bridge (default: vmbr1): " BRIDGE
-    BRIDGE=${BRIDGE:-vmbr1}
+    read -p "Bridge (default: vmbr0): " BRIDGE
+    BRIDGE=${BRIDGE:-vmbr0}
   fi
 
   SUBNET="192.168.100"
