@@ -13,9 +13,20 @@ collect_input() {
   }
 
   if command -v whiptail >/dev/null 2>&1; then
-    NODE=$(whiptail --inputbox "Node (default: pve)" 8 60 "pve" 3>&1 1>&2 2>&3)
-    abort_if_empty "$NODE"
-    NODE=${NODE:-pve}
+    # Proxmox Nodes automatisch erkennen
+    NODES=($(pvesh get /nodes --output-format=json | grep -oP '"node"\s*:\s*"\K[^"]+'))
+    if [[ ${#NODES[@]} -eq 0 ]]; then
+      NODE=$(whiptail --inputbox "Node (default: pve)" 8 60 "pve" 3>&1 1>&2 2>&3)
+      abort_if_empty "$NODE"
+      NODE=${NODE:-pve}
+    else
+      NODE_MENU=()
+      for n in "${NODES[@]}"; do
+        NODE_MENU+=("$n" "Proxmox Node $n")
+      done
+      NODE=$(whiptail --menu "Select Proxmox Node" 15 60 ${#NODE_MENU[@]} "${NODE_MENU[@]}" 3>&1 1>&2 2>&3)
+      abort_if_empty "$NODE"
+    fi
     VMID=$(whiptail --inputbox "VM ID (e.g. 9000)" 8 60 "" 3>&1 1>&2 2>&3)
     abort_if_empty "$VMID"
     VMNAME=$(whiptail --inputbox "VM name" 8 60 "" 3>&1 1>&2 2>&3)

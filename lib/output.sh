@@ -16,7 +16,7 @@ handle_template_and_start() {
 }
 
 display_credentials() {
-  echo "====== Credentials ======"
+  echo "============ Credentials ============"
   echo "Hostname: $VMNAME"
   echo "VM ID: $VMID"
   echo "Network: $VM_IP via $BRIDGE"
@@ -24,5 +24,5 @@ display_credentials() {
   echo "User password: $USERPASS"
   echo "Root password (console only!): $ROOTPASS"
   echo "SSH: ssh $CIUSER@$VM_IP"
-  echo "========================="
+  echo "====================================="
 }
