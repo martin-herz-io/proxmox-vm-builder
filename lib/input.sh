@@ -59,10 +59,20 @@ collect_input() {
 
   # Bridge Auswahl (nur whiptail)
   if command -v whiptail >/dev/null 2>&1; then
-    # Netzwerkkarten abrufen (nur vmbrX, keine lo)
-    BRIDGES=($(awk -F: '/^vmbr/ {print $1}' /proc/net/dev | tr -d ' '))
+    # Debug-Ausgabe
+    echo "DEBUG: Checking for bridge interfaces..."
+    cat /proc/net/dev | grep -i vmbr || echo "No bridges found in /proc/net/dev"
+    
+    # Alternative Methode: ip link anstelle von /proc/net/dev verwenden
+    BRIDGES=($(ip link show | grep -oP '(?<=: )vmbr\d+' || echo "vmbr1"))
+    
+    echo "DEBUG: Found bridges: ${BRIDGES[*]}"
+    
+    # Fallback, falls keine Bridges gefunden wurden
     if [[ ${#BRIDGES[@]} -eq 0 ]]; then
-      BRIDGE="vmbr0"
+      echo "DEBUG: No bridges found, using default vmbr1"
+      BRIDGE="vmbr1"
+      whiptail --msgbox "No network bridges detected. Using default: vmbr1" 8 60
     else
       BRIDGE_MENU=()
       for b in "${BRIDGES[@]}"; do
@@ -72,8 +82,8 @@ collect_input() {
       abort_if_empty "$BRIDGE"
     fi
   else
-    read -p "Bridge (default: vmbr0): " BRIDGE
-    BRIDGE=${BRIDGE:-vmbr0}
+    read -p "Bridge (default: vmbr1): " BRIDGE
+    BRIDGE=${BRIDGE:-vmbr1}
   fi
 
   SUBNET="192.168.100"
